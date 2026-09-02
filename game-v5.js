@@ -791,21 +791,33 @@ car.position.set(
 );
 
 // ==========================================
-// PHYSICS
+// V5 REALISTIC PHYSICS
 // ==========================================
 
 let speed = 0;
 let steering = 0;
+let steeringInput = 0;
 
-const MAX_SPEED = 1.7;
-const ACCELERATION = 0.014;
-const BRAKING = 0.045;
-const FRICTION = 0.006;
+let rpm = 900;
+let currentGear = 1;
+
+const MAX_SPEED = 2.4;
+const ACCELERATION = 0.010;
+const BRAKING = 0.055;
+const FRICTION = 0.0035;
+
+const MAX_STEERING = 0.035;
 
 let gasPressed = false;
 let brakePressed = false;
 let leftPressed = false;
 let rightPressed = false;
+
+// Suspension
+let suspensionBounce = 0;
+
+// Body roll
+let bodyRoll = 0;
 
 // ==========================================
 // KEYBOARD
@@ -1023,80 +1035,197 @@ function updateTraffic() {
 }
 
 // ==========================================
-// PLAYER UPDATE
+// V5 PLAYER UPDATE
 // ==========================================
 
 function updateCar() {
 
-    if (gasPressed)
-        speed += ACCELERATION;
+    // --------------------------------------
+    // ACCELERATION
+    // --------------------------------------
 
-    if (brakePressed)
-        speed -= BRAKING;
+    if (gasPressed) {
 
-    if (
-        !gasPressed &&
-        !brakePressed
-    ) {
+        // Acceleration becomes weaker
+        // at higher speeds
+        const accelerationFactor =
+            1 - (speed / MAX_SPEED) * 0.55;
 
-        if (speed > 0)
-            speed -= FRICTION;
+        speed +=
+            ACCELERATION *
+            Math.max(
+                accelerationFactor,
+                0.25
+            );
     }
 
-    speed =
-        THREE.MathUtils.clamp(
-            speed,
-            0,
-            MAX_SPEED
+    // --------------------------------------
+    // BRAKING
+    // --------------------------------------
+
+    if (brakePressed) {
+
+        speed -=
+            BRAKING *
+            Math.max(
+                speed / MAX_SPEED,
+                0.25
+            );
+    }
+
+    // --------------------------------------
+    // NATURAL FRICTION
+    // --------------------------------------
+
+    if (!gasPressed && !brakePressed) {
+
+        if (speed > 0) {
+            speed -= FRICTION;
+        }
+    }
+
+    // --------------------------------------
+    // ROAD / GRASS
+    // --------------------------------------
+
+    const center =
+        roadX(car.position.z);
+
+    const roadOffset =
+        car.position.x - center;
+
+    if (Math.abs(roadOffset) > 7) {
+
+        // Grass slows the car
+        speed *= 0.975;
+    }
+
+    // --------------------------------------
+    // SPEED LIMIT
+    // --------------------------------------
+
+    speed = THREE.MathUtils.clamp(
+        speed,
+        0,
+        MAX_SPEED
+    );
+
+    // --------------------------------------
+    // STEERING INPUT
+    // --------------------------------------
+
+    let targetSteering = 0;
+
+    if (leftPressed) {
+        targetSteering = 1;
+    }
+
+    if (rightPressed) {
+        targetSteering = -1;
+    }
+
+    // Smooth steering
+    steeringInput =
+        THREE.MathUtils.lerp(
+            steeringInput,
+            targetSteering,
+            0.12
         );
 
-    if (leftPressed)
-        steering = 1;
-    else if (rightPressed)
-        steering = -1;
-    else
-        steering = 0;
+    // Steering becomes less sensitive
+    // at very high speed
+    const speedFactor =
+        1 -
+        (speed / MAX_SPEED) * 0.35;
 
-    // Steering
+    steering =
+        steeringInput *
+        MAX_STEERING *
+        Math.max(
+            speedFactor,
+            0.55
+        );
+
     car.rotation.y +=
-        steering *
-        speed *
-        0.020;
+        steering * speed;
 
-    // Move
+    // --------------------------------------
+    // BODY ROLL
+    // --------------------------------------
+
+    const targetRoll =
+        -steeringInput *
+        Math.min(
+            speed * 0.08,
+            0.08
+        );
+
+    bodyRoll =
+        THREE.MathUtils.lerp(
+            bodyRoll,
+            targetRoll,
+            0.08
+        );
+
+    body.rotation.z =
+        bodyRoll;
+
+    cabin.rotation.z =
+        bodyRoll * 0.65;
+
+    hood.rotation.z =
+        bodyRoll;
+
+    // --------------------------------------
+    // SUSPENSION
+    // --------------------------------------
+
+    const suspensionTarget =
+        Math.sin(
+            Date.now() * 0.018
+        ) *
+        speed *
+        0.025;
+
+    suspensionBounce =
+        THREE.MathUtils.lerp(
+            suspensionBounce,
+            suspensionTarget,
+            0.08
+        );
+
+    car.position.y =
+        suspensionBounce;
+
+    // --------------------------------------
+    // MOVE CAR
+    // --------------------------------------
+
     car.translateZ(-speed);
 
-    // Road center
-    const center =
-        roadX(
-            car.position.z
-        );
+    // --------------------------------------
+    // KEEP CAR NEAR ROAD
+    // --------------------------------------
 
-    // Keep car reasonably close
-    // to the road
-    const roadOffset =
-        car.position.x -
-        center;
+    const maximumRoadOffset = 8;
 
     if (
-        Math.abs(roadOffset) <
-        7
+        Math.abs(roadOffset) >
+        maximumRoadOffset
     ) {
 
-        // normal road driving
-    }
-    else {
-
-        // grass slows the car
-        speed *= 0.94;
+        speed *= 0.97;
     }
 
-    // Wheels
+    // --------------------------------------
+    // WHEELS
+    // --------------------------------------
+
     frontWheels.forEach(
         wheel => {
 
             wheel.rotation.y =
-                -steering * 0.35;
+                -steeringInput * 0.45;
 
             wheel.rotation.x -=
                 speed * 1.5;
@@ -1107,9 +1236,7 @@ function updateCar() {
         wheel => {
 
             if (
-                !frontWheels.includes(
-                    wheel
-                )
+                !frontWheels.includes(wheel)
             ) {
 
                 wheel.rotation.x -=
@@ -1118,9 +1245,45 @@ function updateCar() {
         }
     );
 
+    // --------------------------------------
+    // RPM
+    // --------------------------------------
+
+    rpm =
+        900 +
+        (speed / MAX_SPEED) *
+        6500;
+
+    // --------------------------------------
+    // AUTOMATIC GEARBOX
+    // --------------------------------------
+
+    if (speed < 0.45) {
+        currentGear = 1;
+    }
+    else if (speed < 0.95) {
+        currentGear = 2;
+    }
+    else if (speed < 1.45) {
+        currentGear = 3;
+    }
+    else if (speed < 1.9) {
+        currentGear = 4;
+    }
+    else {
+        currentGear = 5;
+    }
+
+    // --------------------------------------
+    // COLLISION
+    // --------------------------------------
+
     checkCollisions();
 
-    // Speed
+    // --------------------------------------
+    // SPEEDOMETER
+    // --------------------------------------
+
     const kmh =
         Math.round(
             speed * 70
@@ -1130,26 +1293,17 @@ function updateCar() {
         "speed"
     ).textContent = kmh;
 
-    // Gear
-    let gear = "N";
-
-    if (speed > 0.05)
-        gear = "1";
-
-    if (speed > 0.55)
-        gear = "2";
-
-    if (speed > 1.0)
-        gear = "3";
-
-    if (speed > 1.4)
-        gear = "4";
+    // --------------------------------------
+    // GEAR DISPLAY
+    // --------------------------------------
 
     document.getElementById(
         "gear"
-    ).textContent = gear;
+    ).textContent =
+        speed < 0.03
+            ? "N"
+            : currentGear;
 }
-
 // ==========================================
 // CAMERA
 // ==========================================
@@ -1181,7 +1335,7 @@ function updateCamera() {
 
     camera.position.lerp(
         desiredPosition,
-        0.08
+        0.06
     );
 
     cameraTarget.set(
