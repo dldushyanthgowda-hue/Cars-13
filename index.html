@@ -2,34 +2,132 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+
     <meta name="viewport"
-          content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>cars 13</title>
+          content="width=device-width,
+                   initial-scale=1.0,
+                   maximum-scale=1.0,
+                   user-scalable=no,
+                   viewport-fit=cover">
+
+    <meta name="theme-color" content="#000000">
+
+    <title>Cars 13 — V6</title>
+
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-    <div id="hud">
-        <div class="speed">
-            <span id="speed">0</span>
-            <small>KM/H</small>
-        </div>
-
-        <div class="gear">
-            GEAR <span id="gear">N</span>
-        </div>
+    <!-- Rotate phone message -->
+    <div id="rotateMessage">
+        <div class="rotateIcon">↻</div>
+        <h2>Rotate Your Phone</h2>
+        <p>Cars 13 is designed for landscape mode.</p>
     </div>
 
-    <div id="controls">
-        <button id="left">◀</button>
-        <button id="brake">BRAKE</button>
-        <button id="gas">GAS</button>
-        <button id="right">▶</button>
+    <!-- Game interface -->
+
+    <div id="game">
+
+        <!-- HUD -->
+
+        <div id="hud">
+
+            <div class="speed">
+                <span id="speed">0</span>
+                <small>KM/H</small>
+            </div>
+
+            <div class="gear">
+                GEAR
+                <span id="gear">N</span>
+            </div>
+
+        </div>
+
+        <!-- Controls -->
+
+        <div id="controls">
+
+            <div class="steeringControls">
+
+                <button
+                    id="left"
+                    aria-label="Steer left">
+                    ◀
+                </button>
+
+                <button
+                    id="right"
+                    aria-label="Steer right">
+                    ▶
+                </button>
+
+            </div>
+
+            <div class="pedalControls">
+
+                <button
+                    id="brake"
+                    aria-label="Brake">
+                    BRAKE
+                </button>
+
+                <button
+                    id="gas"
+                    aria-label="Accelerate">
+                    GAS
+                </button>
+
+            </div>
+
+        </div>
+
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
-    <script src="game-v5.js"></script>
+
+    <!-- V6 -->
+    <script src="game-v6.js"></script>
+
+    <script>
+
+        function checkOrientation() {
+
+            const message =
+                document.getElementById(
+                    "rotateMessage"
+                );
+
+            if (
+                window.innerHeight >
+                window.innerWidth
+            ) {
+
+                message.style.display =
+                    "flex";
+
+            } else {
+
+                message.style.display =
+                    "none";
+            }
+        }
+
+        checkOrientation();
+
+        window.addEventListener(
+            "resize",
+            checkOrientation
+        );
+
+        window.addEventListener(
+            "orientationchange",
+            checkOrientation
+        );
+
+    </script>
 
 </body>
 </html>
