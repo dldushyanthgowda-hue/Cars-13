@@ -1,28 +1,24 @@
 // ============================================================
 // CARS 13 — V6
-// Complete 3D driving game
+// Curved Road Edition
 // ============================================================
-
-// ------------------------------------------------------------
-// SCENE
-// ------------------------------------------------------------
 
 const scene = new THREE.Scene();
 
-scene.background = new THREE.Color(0x78c8f0);
+scene.background = new THREE.Color(0x78c9ef);
 
 scene.fog = new THREE.Fog(
-    0x78c8f0,
+    0x78c9ef,
     180,
-    1000
+    1100
 );
 
-// ------------------------------------------------------------
+// ============================================================
 // CAMERA
-// ------------------------------------------------------------
+// ============================================================
 
 const camera = new THREE.PerspectiveCamera(
-    72,
+    70,
     window.innerWidth / window.innerHeight,
     0.1,
     3000
@@ -30,9 +26,9 @@ const camera = new THREE.PerspectiveCamera(
 
 camera.position.set(0, 5, 12);
 
-// ------------------------------------------------------------
+// ============================================================
 // RENDERER
-// ------------------------------------------------------------
+// ============================================================
 
 const renderer = new THREE.WebGLRenderer({
     antialias: true
@@ -55,18 +51,18 @@ document.body.appendChild(
     renderer.domElement
 );
 
-// ------------------------------------------------------------
-// LIGHT
-// ------------------------------------------------------------
+// ============================================================
+// LIGHTING
+// ============================================================
 
 const sun = new THREE.DirectionalLight(
     0xffffff,
-    2.5
+    2.3
 );
 
 sun.position.set(
-    100,
-    150,
+    120,
+    180,
     80
 );
 
@@ -75,39 +71,36 @@ sun.castShadow = true;
 sun.shadow.mapSize.width = 2048;
 sun.shadow.mapSize.height = 2048;
 
-sun.shadow.camera.left = -150;
-sun.shadow.camera.right = 150;
-sun.shadow.camera.top = 150;
-sun.shadow.camera.bottom = -150;
+sun.shadow.camera.left = -180;
+sun.shadow.camera.right = 180;
+sun.shadow.camera.top = 180;
+sun.shadow.camera.bottom = -180;
 
 scene.add(sun);
 
-const skyLight =
+const hemisphere =
     new THREE.HemisphereLight(
-        0x9edfff,
-        0x355d25,
-        1.5
+        0xbdeaff,
+        0x315c2c,
+        1.4
     );
 
-scene.add(skyLight);
+scene.add(hemisphere);
 
-// ------------------------------------------------------------
+// ============================================================
 // GROUND
-// ------------------------------------------------------------
-
-const groundMaterial =
-    new THREE.MeshStandardMaterial({
-        color: 0x4c8b3c,
-        roughness: 1
-    });
+// ============================================================
 
 const ground =
     new THREE.Mesh(
         new THREE.PlaneGeometry(
-            5000,
-            5000
+            6000,
+            12000
         ),
-        groundMaterial
+        new THREE.MeshStandardMaterial({
+            color: 0x4d8c3d,
+            roughness: 1
+        })
     );
 
 ground.rotation.x =
@@ -115,150 +108,419 @@ ground.rotation.x =
 
 ground.position.y = -0.08;
 
+ground.position.z = -2000;
+
 ground.receiveShadow = true;
 
 scene.add(ground);
 
-// ------------------------------------------------------------
-// ROAD FUNCTION
-// ------------------------------------------------------------
+// ============================================================
+// ROAD SETTINGS
+// ============================================================
 
 const ROAD_WIDTH = 18;
+
+const ROAD_START = 1200;
+
+const ROAD_END = -6000;
+
+const ROAD_SEGMENTS = 600;
+
+// ============================================================
+// ROAD CURVE
+// ============================================================
 
 function roadX(z) {
 
     return (
-        Math.sin(z * 0.0028) * 24 +
-        Math.sin(z * 0.0065) * 10 +
-        Math.sin(z * 0.015) * 4
+        Math.sin(z * 0.0025) * 28 +
+        Math.sin(z * 0.006) * 12 +
+        Math.sin(z * 0.014) * 4
     );
 }
 
-// ------------------------------------------------------------
-// ROAD
-// ------------------------------------------------------------
+// ============================================================
+// CREATE CURVED ROAD
+// ============================================================
 
-const roadMaterial =
-    new THREE.MeshStandardMaterial({
-        color: 0x282828,
-        roughness: 0.9,
-        metalness: 0.05
-    });
+const roadPositions = [];
+const roadUVs = [];
+const roadIndices = [];
+
+for (
+    let i = 0;
+    i <= ROAD_SEGMENTS;
+    i++
+) {
+
+    const t =
+        i / ROAD_SEGMENTS;
+
+    const z =
+        ROAD_START +
+        (ROAD_END - ROAD_START) * t;
+
+    const center =
+        roadX(z);
+
+    const left =
+        center -
+        ROAD_WIDTH / 2;
+
+    const right =
+        center +
+        ROAD_WIDTH / 2;
+
+    roadPositions.push(
+        left, 0, z,
+        right, 0, z
+    );
+
+    roadUVs.push(
+        0, t * 100,
+        1, t * 100
+    );
+
+    if (
+        i < ROAD_SEGMENTS
+    ) {
+
+        const a = i * 2;
+        const b = a + 1;
+        const c = a + 2;
+        const d = a + 3;
+
+        roadIndices.push(
+            a, c, b,
+            b, c, d
+        );
+    }
+}
+
+const roadGeometry =
+    new THREE.BufferGeometry();
+
+roadGeometry.setAttribute(
+    "position",
+    new THREE.Float32BufferAttribute(
+        roadPositions,
+        3
+    )
+);
+
+roadGeometry.setAttribute(
+    "uv",
+    new THREE.Float32BufferAttribute(
+        roadUVs,
+        2
+    )
+);
+
+roadGeometry.setIndex(
+    roadIndices
+);
+
+roadGeometry.computeVertexNormals();
 
 const road =
     new THREE.Mesh(
-        new THREE.PlaneGeometry(
-            ROAD_WIDTH,
-            6000,
-            1,
-            1
-        ),
-        roadMaterial
+        roadGeometry,
+        new THREE.MeshStandardMaterial({
+            color: 0x292929,
+            roughness: 0.92,
+            metalness: 0.04,
+            side: THREE.DoubleSide
+        })
     );
-
-road.rotation.x =
-    -Math.PI / 2;
-
-road.position.z = -1200;
 
 road.receiveShadow = true;
 
 scene.add(road);
 
-// ------------------------------------------------------------
-// ROAD MARKINGS
-// ------------------------------------------------------------
+// ============================================================
+// ROAD MARKING HELPER
+// ============================================================
 
-const whiteMaterial =
-    new THREE.MeshBasicMaterial({
-        color: 0xffffff
-    });
-
-for (
-    let z = -4100;
-    z < 1700;
-    z += 22
+function createRoadStrip(
+    width,
+    y,
+    offset
 ) {
 
-    const line =
-        new THREE.Mesh(
-            new THREE.BoxGeometry(
-                0.32,
-                0.05,
-                8
-            ),
-            whiteMaterial
-        );
+    const positions = [];
+    const indices = [];
 
-    line.position.set(
-        roadX(z),
-        0.035,
-        z
-    );
+    const segments = ROAD_SEGMENTS;
 
-    scene.add(line);
-}
+    for (
+        let i = 0;
+        i <= segments;
+        i++
+    ) {
 
-// ------------------------------------------------------------
-// ROAD EDGES
-// ------------------------------------------------------------
+        const t =
+            i / segments;
 
-const edgeMaterial =
-    new THREE.MeshBasicMaterial({
-        color: 0xffffff
-    });
+        const z =
+            ROAD_START +
+            (ROAD_END - ROAD_START) * t;
 
-for (
-    let z = -4100;
-    z < 1700;
-    z += 10
-) {
+        const center =
+            roadX(z);
 
-    const center = roadX(z);
+        const x =
+            center + offset;
 
-    for (const side of [-1, 1]) {
+        positions.push(
+            x - width / 2,
+            y,
+            z,
 
-        const edge =
-            new THREE.Mesh(
-                new THREE.BoxGeometry(
-                    0.3,
-                    0.05,
-                    5
-                ),
-                edgeMaterial
-            );
-
-        edge.position.set(
-            center +
-                side *
-                (ROAD_WIDTH / 2 - 0.45),
-            0.04,
+            x + width / 2,
+            y,
             z
         );
 
-        scene.add(edge);
+        if (
+            i < segments
+        ) {
+
+            const a = i * 2;
+            const b = a + 1;
+            const c = a + 2;
+            const d = a + 3;
+
+            indices.push(
+                a, c, b,
+                b, c, d
+            );
+        }
     }
+
+    const geometry =
+        new THREE.BufferGeometry();
+
+    geometry.setAttribute(
+        "position",
+        new THREE.Float32BufferAttribute(
+            positions,
+            3
+        )
+    );
+
+    geometry.setIndex(
+        indices
+    );
+
+    geometry.computeVertexNormals();
+
+    const mesh =
+        new THREE.Mesh(
+            geometry,
+            new THREE.MeshBasicMaterial({
+                color: 0xffffff,
+                side: THREE.DoubleSide
+            })
+        );
+
+    scene.add(mesh);
+
+    return mesh;
 }
 
-// ------------------------------------------------------------
+// ============================================================
+// ROAD EDGE LINES
+// ============================================================
+
+createRoadStrip(
+    0.32,
+    0.045,
+    -(ROAD_WIDTH / 2 - 0.55)
+);
+
+createRoadStrip(
+    0.32,
+    0.045,
+    ROAD_WIDTH / 2 - 0.55
+);
+
+// ============================================================
+// CENTER DASH MARKINGS
+// ============================================================
+
+const markingMaterial =
+    new THREE.MeshBasicMaterial({
+        color: 0xffffff
+    });
+
+const centerMarkings = [];
+
+for (
+    let z = ROAD_START - 10;
+    z > ROAD_END;
+    z -= 24
+) {
+
+    const center =
+        roadX(z);
+
+    const dash =
+        new THREE.Mesh(
+            new THREE.BoxGeometry(
+                0.32,
+                0.055,
+                10
+            ),
+            markingMaterial
+        );
+
+    dash.position.set(
+        center,
+        0.05,
+        z
+    );
+
+    /*
+       Rotate the dash so it follows
+       the direction of the road.
+    */
+
+    const ahead =
+        roadX(z - 2);
+
+    const dx =
+        ahead - center;
+
+    dash.rotation.y =
+        Math.atan2(
+            dx,
+            -2
+        );
+
+    scene.add(dash);
+
+    centerMarkings.push(dash);
+}
+
+// ============================================================
+// ROAD SHOULDERS
+// ============================================================
+
+const shoulderMaterial =
+    new THREE.MeshStandardMaterial({
+        color: 0x777777,
+        roughness: 1
+    });
+
+function createShoulder(side) {
+
+    const positions = [];
+    const indices = [];
+
+    const inner =
+        ROAD_WIDTH / 2;
+
+    const outer =
+        ROAD_WIDTH / 2 + 1.5;
+
+    for (
+        let i = 0;
+        i <= ROAD_SEGMENTS;
+        i++
+    ) {
+
+        const t =
+            i / ROAD_SEGMENTS;
+
+        const z =
+            ROAD_START +
+            (ROAD_END - ROAD_START) * t;
+
+        const center =
+            roadX(z);
+
+        const innerX =
+            center + side * inner;
+
+        const outerX =
+            center + side * outer;
+
+        positions.push(
+            innerX,
+            0.005,
+            z,
+
+            outerX,
+            0.005,
+            z
+        );
+
+        if (
+            i < ROAD_SEGMENTS
+        ) {
+
+            const a = i * 2;
+            const b = a + 1;
+            const c = a + 2;
+            const d = a + 3;
+
+            indices.push(
+                a, c, b,
+                b, c, d
+            );
+        }
+    }
+
+    const geometry =
+        new THREE.BufferGeometry();
+
+    geometry.setAttribute(
+        "position",
+        new THREE.Float32BufferAttribute(
+            positions,
+            3
+        )
+    );
+
+    geometry.setIndex(
+        indices
+    );
+
+    geometry.computeVertexNormals();
+
+    const shoulder =
+        new THREE.Mesh(
+            geometry,
+            shoulderMaterial
+        );
+
+    shoulder.receiveShadow = true;
+
+    scene.add(shoulder);
+}
+
+createShoulder(-1);
+createShoulder(1);
+
+// ============================================================
 // MOUNTAINS
-// ------------------------------------------------------------
+// ============================================================
 
 const mountainMaterials = [
     new THREE.MeshStandardMaterial({
-        color: 0x536b4c,
+        color: 0x526d50,
         roughness: 1
     }),
     new THREE.MeshStandardMaterial({
-        color: 0x65785a,
+        color: 0x657c5e,
         roughness: 1
     })
 ];
 
 for (
-    let z = -3800;
-    z < 1500;
-    z += 220
+    let z = 1000;
+    z > -5800;
+    z -= 240
 ) {
 
     const center =
@@ -275,8 +537,8 @@ for (
         const mountain =
             new THREE.Mesh(
                 new THREE.ConeGeometry(
-                    30 +
-                        Math.random() * 20,
+                    28 +
+                    Math.random() * 25,
                     height,
                     9
                 ),
@@ -289,15 +551,15 @@ for (
 
         mountain.position.set(
             center +
-                side *
-                (
-                    60 +
-                    Math.random() * 50
-                ),
+            side *
+            (
+                65 +
+                Math.random() * 45
+            ),
             height / 2,
             z +
-                (Math.random() - 0.5) *
-                100
+            Math.random() * 100 -
+            50
         );
 
         mountain.scale.x =
@@ -310,14 +572,14 @@ for (
     }
 }
 
-// ------------------------------------------------------------
-// TREE
-// ------------------------------------------------------------
+// ============================================================
+// TREES
+// ============================================================
 
 function createTree(
     x,
     z,
-    scale = 1
+    scale
 ) {
 
     const tree =
@@ -326,13 +588,13 @@ function createTree(
     const trunk =
         new THREE.Mesh(
             new THREE.CylinderGeometry(
-                0.35,
-                0.5,
+                0.32,
+                0.48,
                 4,
                 8
             ),
             new THREE.MeshStandardMaterial({
-                color: 0x654321,
+                color: 0x604225,
                 roughness: 1
             })
         );
@@ -344,12 +606,12 @@ function createTree(
     const leaves =
         new THREE.Mesh(
             new THREE.ConeGeometry(
-                2.7,
+                2.6,
                 6.5,
                 8
             ),
             new THREE.MeshStandardMaterial({
-                color: 0x176b2d,
+                color: 0x176b2c,
                 roughness: 1
             })
         );
@@ -358,12 +620,14 @@ function createTree(
 
     tree.add(leaves);
 
-    tree.scale.setScalar(scale);
-
     tree.position.set(
         x,
         0,
         z
+    );
+
+    tree.scale.setScalar(
+        scale
     );
 
     tree.traverse(
@@ -380,14 +644,10 @@ function createTree(
     scene.add(tree);
 }
 
-// ------------------------------------------------------------
-// TREES ALONG ROAD
-// ------------------------------------------------------------
-
 for (
-    let z = -3800;
-    z < 1500;
-    z += 45
+    let z = 1000;
+    z > -5800;
+    z -= 42
 ) {
 
     const center =
@@ -395,188 +655,216 @@ for (
 
     createTree(
         center -
-            20 -
-            Math.random() * 15,
+        23 -
+        Math.random() * 12,
         z,
         0.8 +
-            Math.random() * 0.5
+        Math.random() * 0.5
     );
 
     createTree(
         center +
-            20 +
-            Math.random() * 15,
+        23 +
+        Math.random() * 12,
         z +
-            Math.random() * 15,
+        Math.random() * 15,
         0.8 +
-            Math.random() * 0.5
+        Math.random() * 0.5
     );
 }
 
-// ------------------------------------------------------------
+// ============================================================
 // PLAYER CAR
-// ------------------------------------------------------------
+// ============================================================
 
 const car =
     new THREE.Group();
 
 scene.add(car);
 
-// ------------------------------------------------------------
-// CAR BODY
-// ------------------------------------------------------------
+// ============================================================
+// CAR MATERIALS
+// ============================================================
 
-const bodyMaterial =
+const redPaint =
     new THREE.MeshStandardMaterial({
         color: 0xc91420,
         metalness: 0.45,
-        roughness: 0.25
+        roughness: 0.24
     });
+
+const darkMaterial =
+    new THREE.MeshStandardMaterial({
+        color: 0x111820,
+        metalness: 0.3,
+        roughness: 0.2
+    });
+
+const blackMaterial =
+    new THREE.MeshStandardMaterial({
+        color: 0x101010,
+        roughness: 0.85
+    });
+
+// ============================================================
+// MAIN BODY
+// ============================================================
 
 const body =
     new THREE.Mesh(
         new THREE.BoxGeometry(
             2.9,
-            0.7,
-            5.4
+            0.68,
+            5.3
         ),
-        bodyMaterial
+        redPaint
     );
 
-body.position.y = 0.82;
+body.position.y =
+    0.82;
 
 body.castShadow = true;
 
 car.add(body);
 
-// ------------------------------------------------------------
+// ============================================================
 // LOWER BODY
-// ------------------------------------------------------------
+// ============================================================
 
 const lowerBody =
     new THREE.Mesh(
         new THREE.BoxGeometry(
             3.05,
-            0.35,
+            0.34,
             4.8
         ),
-        bodyMaterial
+        redPaint
     );
 
-lowerBody.position.y = 0.55;
+lowerBody.position.y =
+    0.55;
 
 lowerBody.castShadow = true;
 
 car.add(lowerBody);
 
-// ------------------------------------------------------------
+// ============================================================
 // CABIN
-// ------------------------------------------------------------
-
-const cabinMaterial =
-    new THREE.MeshStandardMaterial({
-        color: 0x111820,
-        metalness: 0.35,
-        roughness: 0.18
-    });
+// ============================================================
 
 const cabin =
     new THREE.Mesh(
         new THREE.BoxGeometry(
-            2.35,
+            2.3,
             0.85,
-            2.5
+            2.45
         ),
-        cabinMaterial
+        darkMaterial
     );
 
 cabin.position.set(
     0,
     1.48,
-    0.25
+    0.2
 );
 
 cabin.castShadow = true;
 
 car.add(cabin);
 
-// ------------------------------------------------------------
+// ============================================================
 // ROOF
-// ------------------------------------------------------------
+// ============================================================
 
 const roof =
     new THREE.Mesh(
         new THREE.BoxGeometry(
-            2.15,
+            2.12,
             0.15,
-            2.15
+            2.1
         ),
-        bodyMaterial
+        redPaint
     );
 
 roof.position.set(
     0,
-    1.93,
-    0.28
+    1.94,
+    0.2
 );
 
 roof.castShadow = true;
 
 car.add(roof);
 
-// ------------------------------------------------------------
+// ============================================================
 // HOOD
-// ------------------------------------------------------------
+// ============================================================
 
 const hood =
     new THREE.Mesh(
         new THREE.BoxGeometry(
             2.55,
             0.18,
-            1.45
+            1.4
         ),
-        bodyMaterial
+        redPaint
     );
 
 hood.position.set(
     0,
-    1.1,
+    1.08,
     -1.75
 );
 
 car.add(hood);
 
-// ------------------------------------------------------------
+// ============================================================
 // FRONT BUMPER
-// ------------------------------------------------------------
+// ============================================================
 
-const bumper =
+const frontBumper =
     new THREE.Mesh(
         new THREE.BoxGeometry(
             2.75,
             0.3,
             0.25
         ),
-        new THREE.MeshStandardMaterial({
-            color: 0x171717,
-            roughness: 0.5
-        })
+        blackMaterial
     );
 
-bumper.position.set(
+frontBumper.position.set(
     0,
     0.55,
     -2.65
 );
 
-car.add(bumper);
+car.add(frontBumper);
 
-// ------------------------------------------------------------
-// REAR SPOILER
-// ------------------------------------------------------------
+// ============================================================
+// REAR BUMPER
+// ============================================================
 
-const spoiler =
-    new THREE.Group();
+const rearBumper =
+    new THREE.Mesh(
+        new THREE.BoxGeometry(
+            2.75,
+            0.3,
+            0.25
+        ),
+        blackMaterial
+    );
+
+rearBumper.position.set(
+    0,
+    0.55,
+    2.65
+);
+
+car.add(rearBumper);
+
+// ============================================================
+// SPOILER
+// ============================================================
 
 const spoilerBar =
     new THREE.Mesh(
@@ -585,54 +873,49 @@ const spoilerBar =
             0.12,
             0.3
         ),
-        bodyMaterial
+        redPaint
     );
 
-spoilerBar.position.y =
-    1.75;
-
-spoilerBar.position.z =
-    2.15;
-
-spoiler.add(spoilerBar);
-
-const spoilerLeft =
-    new THREE.Mesh(
-        new THREE.BoxGeometry(
-            0.12,
-            0.5,
-            0.15
-        ),
-        bodyMaterial
-    );
-
-spoilerLeft.position.set(
-    -0.9,
-    1.45,
+spoilerBar.position.set(
+    0,
+    1.72,
     2.15
 );
 
-spoiler.add(spoilerLeft);
+car.add(spoilerBar);
 
-const spoilerRight =
-    spoilerLeft.clone();
+for (
+    const x of [-0.9, 0.9]
+) {
 
-spoilerRight.position.x =
-    0.9;
+    const support =
+        new THREE.Mesh(
+            new THREE.BoxGeometry(
+                0.12,
+                0.5,
+                0.15
+            ),
+            redPaint
+        );
 
-spoiler.add(spoilerRight);
+    support.position.set(
+        x,
+        1.45,
+        2.15
+    );
 
-car.add(spoiler);
+    car.add(support);
+}
 
-// ------------------------------------------------------------
+// ============================================================
 // HEADLIGHTS
-// ------------------------------------------------------------
+// ============================================================
 
 const headlightMaterial =
     new THREE.MeshStandardMaterial({
         color: 0xffffff,
         emissive: 0xffffff,
-        emissiveIntensity: 1.5
+        emissiveIntensity: 1.4
     });
 
 for (
@@ -652,21 +935,21 @@ for (
     light.position.set(
         x,
         1.05,
-        -2.45
+        -2.48
     );
 
     car.add(light);
 }
 
-// ------------------------------------------------------------
+// ============================================================
 // TAIL LIGHTS
-// ------------------------------------------------------------
+// ============================================================
 
 const tailMaterial =
     new THREE.MeshStandardMaterial({
-        color: 0x7f0000,
+        color: 0x600000,
         emissive: 0xff0000,
-        emissiveIntensity: 0.5
+        emissiveIntensity: 0.7
     });
 
 for (
@@ -685,16 +968,16 @@ for (
 
     light.position.set(
         x,
-        0.95,
-        2.45
+        0.98,
+        2.48
     );
 
     car.add(light);
 }
 
-// ------------------------------------------------------------
+// ============================================================
 // WHEELS
-// ------------------------------------------------------------
+// ============================================================
 
 const wheels = [];
 const frontWheels = [];
@@ -713,10 +996,7 @@ function createWheel(
                 0.38,
                 24
             ),
-            new THREE.MeshStandardMaterial({
-                color: 0x101010,
-                roughness: 0.85
-            })
+            blackMaterial
         );
 
     wheel.rotation.z =
@@ -739,33 +1019,14 @@ function createWheel(
     }
 }
 
-createWheel(
-    -1.5,
-    -1.7,
-    true
-);
+createWheel(-1.5, -1.7, true);
+createWheel(1.5, -1.7, true);
+createWheel(-1.5, 1.7, false);
+createWheel(1.5, 1.7, false);
 
-createWheel(
-    1.5,
-    -1.7,
-    true
-);
-
-createWheel(
-    -1.5,
-    1.7,
-    false
-);
-
-createWheel(
-    1.5,
-    1.7,
-    false
-);
-
-// ------------------------------------------------------------
-// CAR START
-// ------------------------------------------------------------
+// ============================================================
+// START POSITION
+// ============================================================
 
 car.position.set(
     roadX(0),
@@ -773,9 +1034,9 @@ car.position.set(
     0
 );
 
-// ------------------------------------------------------------
+// ============================================================
 // PHYSICS
-// ------------------------------------------------------------
+// ============================================================
 
 let speed = 0;
 
@@ -797,18 +1058,18 @@ const FRICTION = 0.004;
 
 const MAX_STEERING = 0.026;
 
-// ------------------------------------------------------------
-// CONTROLS
-// ------------------------------------------------------------
+// ============================================================
+// CONTROL STATES
+// ============================================================
 
 let gasPressed = false;
 let brakePressed = false;
 let leftPressed = false;
 let rightPressed = false;
 
-// ------------------------------------------------------------
-// TOUCH BUTTONS
-// ------------------------------------------------------------
+// ============================================================
+// TOUCH CONTROLS
+// ============================================================
 
 function setupButton(
     id,
@@ -856,31 +1117,47 @@ function setupButton(
 
 setupButton(
     "gas",
-    () => gasPressed = true,
-    () => gasPressed = false
+    () => {
+        gasPressed = true;
+    },
+    () => {
+        gasPressed = false;
+    }
 );
 
 setupButton(
     "brake",
-    () => brakePressed = true,
-    () => brakePressed = false
+    () => {
+        brakePressed = true;
+    },
+    () => {
+        brakePressed = false;
+    }
 );
 
 setupButton(
     "left",
-    () => leftPressed = true,
-    () => leftPressed = false
+    () => {
+        leftPressed = true;
+    },
+    () => {
+        leftPressed = false;
+    }
 );
 
 setupButton(
     "right",
-    () => rightPressed = true,
-    () => rightPressed = false
+    () => {
+        rightPressed = true;
+    },
+    () => {
+        rightPressed = false;
+    }
 );
 
-// ------------------------------------------------------------
+// ============================================================
 // KEYBOARD
-// ------------------------------------------------------------
+// ============================================================
 
 window.addEventListener(
     "keydown",
@@ -956,9 +1233,9 @@ window.addEventListener(
     }
 );
 
-// ------------------------------------------------------------
+// ============================================================
 // TRAFFIC
-// ------------------------------------------------------------
+// ============================================================
 
 const traffic = [];
 
@@ -970,24 +1247,24 @@ function createTrafficCar(
     const trafficCar =
         new THREE.Group();
 
-    const colorList = [
-        0x1d5fd1,
+    const colors = [
+        0x1e5bd7,
         0xf2c300,
         0xffffff,
-        0x202020,
+        0x222222,
         0x00a86b
     ];
 
     const material =
         new THREE.MeshStandardMaterial({
             color:
-                colorList[
+                colors[
                     Math.floor(
                         Math.random() *
-                        colorList.length
+                        colors.length
                     )
                 ],
-            metalness: 0.3,
+            metalness: 0.25,
             roughness: 0.4
         });
 
@@ -1024,7 +1301,7 @@ function createTrafficCar(
         mesh: trafficCar,
         lane: lane,
         speed:
-            0.7 +
+            0.65 +
             Math.random() * 0.5
     });
 }
@@ -1037,45 +1314,53 @@ for (
 
     createTrafficCar(
         -180 -
-            i * 150 -
-            Math.random() * 80,
+        i * 170 -
+        Math.random() * 80,
         i % 2 === 0
             ? -4
             : 4
     );
 }
 
-// ------------------------------------------------------------
-// UPDATE CAR
-// ------------------------------------------------------------
+// ============================================================
+// CAR UPDATE
+// ============================================================
 
 function updateCar() {
 
+    // --------------------------------------------------------
     // ACCELERATION
+    // --------------------------------------------------------
 
     if (gasPressed) {
 
-        const accelerationFactor =
+        const factor =
             1 -
-            (speed / MAX_SPEED) *
-            0.45;
+            (
+                speed /
+                MAX_SPEED
+            ) * 0.42;
 
         speed +=
             ACCELERATION *
             Math.max(
-                accelerationFactor,
-                0.35
+                factor,
+                0.38
             );
     }
 
+    // --------------------------------------------------------
     // BRAKING
+    // --------------------------------------------------------
 
     if (brakePressed) {
 
         speed -= BRAKING;
     }
 
+    // --------------------------------------------------------
     // FRICTION
+    // --------------------------------------------------------
 
     if (
         !gasPressed &&
@@ -1092,7 +1377,9 @@ function updateCar() {
             MAX_SPEED
         );
 
+    // --------------------------------------------------------
     // STEERING
+    // --------------------------------------------------------
 
     let targetSteering = 0;
 
@@ -1113,8 +1400,10 @@ function updateCar() {
 
     const speedFactor =
         1 -
-        (speed / MAX_SPEED) *
-        0.25;
+        (
+            speed /
+            MAX_SPEED
+        ) * 0.25;
 
     const steering =
         steeringInput *
@@ -1127,7 +1416,9 @@ function updateCar() {
     car.rotation.y +=
         steering * speed;
 
+    // --------------------------------------------------------
     // BODY ROLL
+    // --------------------------------------------------------
 
     const targetRoll =
         -steeringInput *
@@ -1155,13 +1446,17 @@ function updateCar() {
     hood.rotation.z =
         bodyRoll;
 
+    // --------------------------------------------------------
     // MOVE
+    // --------------------------------------------------------
 
     car.translateZ(
         -speed
     );
 
+    // --------------------------------------------------------
     // ROAD GRIP
+    // --------------------------------------------------------
 
     const center =
         roadX(
@@ -1177,10 +1472,12 @@ function updateCar() {
         ROAD_WIDTH / 2
     ) {
 
-        speed *= 0.97;
+        speed *= 0.975;
     }
 
+    // --------------------------------------------------------
     // WHEELS
+    // --------------------------------------------------------
 
     wheels.forEach(
         wheel => {
@@ -1194,19 +1491,24 @@ function updateCar() {
         wheel => {
 
             wheel.rotation.y =
-                -steeringInput *
-                0.45;
+                -steeringInput * 0.45;
         }
     );
 
+    // --------------------------------------------------------
     // RPM
+    // --------------------------------------------------------
 
     rpm =
         900 +
-        (speed / MAX_SPEED) *
-        6500;
+        (
+            speed /
+            MAX_SPEED
+        ) * 6500;
 
-    // GEARBOX
+    // --------------------------------------------------------
+    // AUTOMATIC GEARS
+    // --------------------------------------------------------
 
     if (speed < 0.65) {
         gear = 1;
@@ -1224,7 +1526,9 @@ function updateCar() {
         gear = 5;
     }
 
-    // SPEED DISPLAY
+    // --------------------------------------------------------
+    // SPEED UI
+    // --------------------------------------------------------
 
     const kmh =
         Math.round(
@@ -1242,7 +1546,9 @@ function updateCar() {
             kmh;
     }
 
-    // GEAR DISPLAY
+    // --------------------------------------------------------
+    // GEAR UI
+    // --------------------------------------------------------
 
     const gearElement =
         document.getElementById(
@@ -1258,9 +1564,9 @@ function updateCar() {
     }
 }
 
-// ------------------------------------------------------------
+// ============================================================
 // TRAFFIC UPDATE
-// ------------------------------------------------------------
+// ============================================================
 
 function updateTraffic() {
 
@@ -1277,8 +1583,6 @@ function updateTraffic() {
                 roadX(z) +
                 trafficCar.lane;
 
-            // recycle traffic
-
             if (
                 trafficCar.mesh.position.z >
                 car.position.z + 100
@@ -1287,8 +1591,7 @@ function updateTraffic() {
                 trafficCar.mesh.position.z =
                     car.position.z -
                     1500 -
-                    Math.random() *
-                    700;
+                    Math.random() * 700;
 
                 trafficCar.lane =
                     Math.random() > 0.5
@@ -1296,17 +1599,16 @@ function updateTraffic() {
                         : 4;
 
                 trafficCar.speed =
-                    0.7 +
-                    Math.random() *
-                    0.5;
+                    0.65 +
+                    Math.random() * 0.5;
             }
         }
     );
 }
 
-// ------------------------------------------------------------
+// ============================================================
 // COLLISION
-// ------------------------------------------------------------
+// ============================================================
 
 function checkCollisions() {
 
@@ -1335,47 +1637,53 @@ function checkCollisions() {
     );
 }
 
-// ------------------------------------------------------------
+// ============================================================
 // CAMERA
-// ------------------------------------------------------------
+// ============================================================
 
 function updateCamera() {
 
-    const desiredPosition =
+    const cameraOffset =
         new THREE.Vector3(
             0,
             5.2,
             11
         );
 
-    desiredPosition.applyMatrix4(
-        car.matrixWorld
+    cameraOffset.applyQuaternion(
+        car.quaternion
     );
 
+    const desired =
+        car.position.clone()
+            .add(cameraOffset);
+
     camera.position.lerp(
-        desiredPosition,
+        desired,
         0.075
     );
 
-    const lookTarget =
+    const lookOffset =
         new THREE.Vector3(
             0,
             1.1,
-            -12
+            -14
         );
 
-    lookTarget.applyMatrix4(
-        car.matrixWorld
+    lookOffset.applyQuaternion(
+        car.quaternion
     );
 
-    camera.lookAt(
-        lookTarget
-    );
+    const target =
+        car.position.clone()
+            .add(lookOffset);
+
+    camera.lookAt(target);
 }
 
-// ------------------------------------------------------------
+// ============================================================
 // RESIZE
-// ------------------------------------------------------------
+// ============================================================
 
 window.addEventListener(
     "resize",
@@ -1394,9 +1702,9 @@ window.addEventListener(
     }
 );
 
-// ------------------------------------------------------------
+// ============================================================
 // GAME LOOP
-// ------------------------------------------------------------
+// ============================================================
 
 function animate() {
 
