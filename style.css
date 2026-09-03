@@ -2,75 +2,387 @@
     box-sizing: border-box;
     margin: 0;
     padding: 0;
+
     user-select: none;
     -webkit-user-select: none;
+    -webkit-tap-highlight-color: transparent;
 }
 
+html,
 body {
+    width: 100%;
+    height: 100%;
+
     overflow: hidden;
-    background: #87ceeb;
+
+    background: #000;
+
     font-family: Arial, sans-serif;
 }
 
+/* -------------------------------------------------
+   THREE.JS CANVAS
+------------------------------------------------- */
+
 canvas {
     display: block;
-}
 
-#hud {
     position: fixed;
-    top: 20px;
-    left: 20px;
-    z-index: 10;
-    color: white;
-    text-shadow: 2px 2px 4px black;
-}
 
-.speed {
-    font-size: 42px;
-    font-weight: bold;
-}
-
-.speed small {
-    font-size: 15px;
-}
-
-.gear {
-    margin-top: 5px;
-    font-size: 18px;
-}
-
-#controls {
-    position: fixed;
-    bottom: 25px;
+    top: 0;
     left: 0;
+
     width: 100%;
-    z-index: 20;
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
+    height: 100%;
+
+    z-index: 1;
+}
+
+/* -------------------------------------------------
+   GAME
+------------------------------------------------- */
+
+#game {
+    position: fixed;
+
+    inset: 0;
+
+    width: 100%;
+    height: 100%;
+
+    overflow: hidden;
+
+    z-index: 2;
+
     pointer-events: none;
 }
 
+/* -------------------------------------------------
+   HUD
+------------------------------------------------- */
+
+#hud {
+    position: absolute;
+
+    top: 18px;
+    left: 22px;
+
+    display: flex;
+    align-items: flex-start;
+    gap: 18px;
+
+    color: white;
+
+    z-index: 10;
+
+    text-shadow:
+        2px 2px 4px #000,
+        0 0 8px #000;
+
+    pointer-events: none;
+}
+
+/* Speed */
+
+.speed {
+    min-width: 115px;
+
+    font-size: 44px;
+    line-height: 1;
+
+    font-weight: 800;
+
+    letter-spacing: 1px;
+}
+
+.speed small {
+    display: block;
+
+    margin-top: 5px;
+
+    font-size: 12px;
+
+    letter-spacing: 2px;
+
+    opacity: 0.9;
+}
+
+/* Gear */
+
+.gear {
+    margin-top: 5px;
+
+    padding: 8px 12px;
+
+    border-radius: 8px;
+
+    background: rgba(0, 0, 0, 0.45);
+
+    font-size: 12px;
+
+    letter-spacing: 1px;
+}
+
+.gear span {
+    margin-left: 5px;
+
+    font-size: 24px;
+
+    font-weight: bold;
+}
+
+/* -------------------------------------------------
+   CONTROLS
+------------------------------------------------- */
+
+#controls {
+    position: absolute;
+
+    left: 0;
+    right: 0;
+    bottom: 18px;
+
+    width: 100%;
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: flex-end;
+
+    padding:
+        0 22px
+        env(safe-area-inset-right)
+        env(safe-area-inset-bottom)
+        env(safe-area-inset-left);
+
+    z-index: 20;
+
+    pointer-events: none;
+}
+
+/* Left steering */
+
+.steeringControls {
+    display: flex;
+
+    gap: 14px;
+
+    pointer-events: none;
+}
+
+/* Right pedals */
+
+.pedalControls {
+    display: flex;
+
+    gap: 14px;
+
+    pointer-events: none;
+}
+
+/* All buttons */
+
 #controls button {
     pointer-events: auto;
-    width: 75px;
-    height: 75px;
-    border: none;
+
+    width: 72px;
+    height: 72px;
+
+    border: 2px solid
+        rgba(255, 255, 255, 0.45);
+
     border-radius: 50%;
-    background: rgba(0, 0, 0, 0.45);
+
+    background:
+        rgba(0, 0, 0, 0.48);
+
     color: white;
+
     font-size: 25px;
+
     font-weight: bold;
+
     touch-action: none;
+
+    -webkit-touch-callout: none;
+
+    box-shadow:
+        0 4px 12px
+        rgba(0, 0, 0, 0.35);
+
+    backdrop-filter: blur(4px);
+
+    transition:
+        transform 0.08s,
+        background 0.08s;
 }
+
+/* Pedals */
 
 #controls #brake,
 #controls #gas {
-    width: 85px;
-    height: 85px;
-    font-size: 15px;
+    width: 82px;
+    height: 82px;
+
+    border-radius: 18px;
+
+    font-size: 13px;
+
+    letter-spacing: 1px;
 }
 
+/* Pressed */
+
 #controls button:active {
-    background: rgba(255, 255, 255, 0.4);
+    transform: scale(0.92);
+
+    background:
+        rgba(255, 255, 255, 0.35);
+}
+
+/* -------------------------------------------------
+   ROTATE PHONE MESSAGE
+------------------------------------------------- */
+
+#rotateMessage {
+    position: fixed;
+
+    inset: 0;
+
+    z-index: 100;
+
+    display: none;
+
+    flex-direction: column;
+
+    justify-content: center;
+
+    align-items: center;
+
+    text-align: center;
+
+    padding: 25px;
+
+    background: #101820;
+
+    color: white;
+}
+
+.rotateIcon {
+    font-size: 64px;
+
+    margin-bottom: 15px;
+
+    animation:
+        rotatePhone 1.8s
+        ease-in-out infinite;
+}
+
+#rotateMessage h2 {
+    font-size: 25px;
+
+    margin-bottom: 8px;
+}
+
+#rotateMessage p {
+    font-size: 15px;
+
+    opacity: 0.75;
+
+    max-width: 300px;
+}
+
+@keyframes rotatePhone {
+
+    0% {
+        transform: rotate(0deg);
+    }
+
+    45% {
+        transform: rotate(90deg);
+    }
+
+    70% {
+        transform: rotate(90deg);
+    }
+
+    100% {
+        transform: rotate(0deg);
+    }
+}
+
+/* -------------------------------------------------
+   LANDSCAPE PHONE
+------------------------------------------------- */
+
+@media (orientation: landscape) {
+
+    #controls {
+        bottom: 14px;
+
+        padding-left: 25px;
+        padding-right: 25px;
+    }
+
+    #controls button {
+        width: 68px;
+        height: 68px;
+    }
+
+    #controls #brake,
+    #controls #gas {
+        width: 82px;
+        height: 68px;
+    }
+
+    .speed {
+        font-size: 40px;
+    }
+}
+
+/* -------------------------------------------------
+   SMALL LANDSCAPE SCREENS
+------------------------------------------------- */
+
+@media (
+    orientation: landscape
+) and (max-height: 450px) {
+
+    #hud {
+        top: 10px;
+        left: 15px;
+    }
+
+    .speed {
+        font-size: 32px;
+    }
+
+    .gear {
+        font-size: 10px;
+        padding: 5px 8px;
+    }
+
+    .gear span {
+        font-size: 18px;
+    }
+
+    #controls {
+        bottom: 8px;
+    }
+
+    #controls button {
+        width: 58px;
+        height: 58px;
+
+        font-size: 21px;
+    }
+
+    #controls #brake,
+    #controls #gas {
+        width: 70px;
+        height: 58px;
+
+        font-size: 11px;
+    }
 }
