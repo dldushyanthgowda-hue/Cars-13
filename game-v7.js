@@ -822,7 +822,7 @@ setupHoldButton(
     "left",
     (value) => {
 
-        if (value) steering = -1;
+        if (value) steering = 1;
 
         else if (steering < 0) steering = 0;
 
@@ -833,7 +833,7 @@ setupHoldButton(
     "right",
     (value) => {
 
-        if (value) steering = 1;
+        if (value) steering = -1;
 
         else if (steering > 0) steering = 0;
 
@@ -870,8 +870,8 @@ function updateDriving() {
 
     let targetSteering = steering;
 
-    if (left) targetSteering = -1;
-    if (right) targetSteering = 1;
+    if (left) targetSteering = 1;
+    if (right) targetSteering = -1;
 
     if (!left && !right && !gasPressed &&
         !brakePressed) {
