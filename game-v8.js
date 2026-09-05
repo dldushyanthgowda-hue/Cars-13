@@ -1089,9 +1089,6 @@ function updateDriving() {
         speed *
         0.025;
 
-    playerCar.position.x +=
-        steeringAmount;
-
     // Slowly pull the car toward the road.
 
     const roadDifference =
@@ -1102,20 +1099,32 @@ function updateDriving() {
         roadDifference *
         0.012;
 
-    // --------------------------------------------------------
-    // MOVE FORWARD
-    // --------------------------------------------------------
+    // MOVE + STEER
 
-    playerCar.position.z -=
-        speed * 0.55;
+const moveAmount = speed * 0.55;
 
-    // --------------------------------------------------------
-    // CAR ROTATION
-    // --------------------------------------------------------
+// Turn the car gradually
+playerCar.rotation.y +=
+    finalSteering *
+    0.025 *
+    (speed / MAX_SPEED);
 
-    playerCar.rotation.y =
-        finalSteering *
-        -0.12;
+// Move in the direction the car is facing
+playerCar.position.x -=
+    Math.sin(playerCar.rotation.y) *
+    moveAmount;
+
+playerCar.position.z -=
+    Math.cos(playerCar.rotation.y) *
+    moveAmount;
+
+// --------------------------------------------------------
+// BODY ROLL
+// --------------------------------------------------------
+
+playerCar.rotation.z =
+    -finalSteering *
+    0.045;
 
     // Small body roll
 
