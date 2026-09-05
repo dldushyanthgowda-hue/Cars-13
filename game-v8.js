@@ -928,11 +928,11 @@ function setupButton(
             }
 
             if (id === "left") {
-                steering = -1;
+                steering = 1;
             }
 
             if (id === "right") {
-                steering = 1;
+                steering = -1;
             }
 
         }
