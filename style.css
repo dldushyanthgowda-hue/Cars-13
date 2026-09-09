@@ -131,6 +131,142 @@ canvas {
     font-weight: bold;
 }
 
+#progress {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+
+    margin-top: 5px;
+    padding: 8px 12px;
+
+    border-radius: 8px;
+
+    background: rgba(0, 0, 0, 0.45);
+
+    font-size: 11px;
+    font-weight: bold;
+    letter-spacing: 1px;
+}
+
+#progress span:last-child {
+    color: #ffe27a;
+}
+
+#menuButton {
+    position: fixed;
+
+    top: 18px;
+    right: 22px;
+
+    z-index: 25;
+
+    padding: 10px 14px;
+
+    border: 1px solid rgba(255, 255, 255, 0.45);
+    border-radius: 8px;
+
+    background: rgba(0, 0, 0, 0.48);
+
+    color: white;
+
+    font-size: 11px;
+    font-weight: bold;
+    letter-spacing: 1px;
+
+    pointer-events: auto;
+}
+
+#interactionPrompt {
+    position: fixed;
+
+    left: 50%;
+    bottom: 115px;
+
+    z-index: 24;
+
+    transform: translateX(-50%);
+
+    padding: 10px 14px;
+
+    border-radius: 8px;
+
+    background: rgba(0, 0, 0, 0.62);
+
+    color: white;
+
+    font-size: 12px;
+    font-weight: bold;
+    letter-spacing: 0.8px;
+
+    opacity: 0;
+
+    pointer-events: none;
+
+    transition: opacity 0.2s;
+}
+
+#interactionPrompt.is-visible {
+    opacity: 1;
+}
+
+#mapPanel {
+    position: fixed;
+    top: 60px;
+    right: 22px;
+    z-index: 24;
+    width: 236px;
+    padding: 9px;
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    border-radius: 10px;
+    background: rgba(5, 15, 22, 0.78);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
+    color: white;
+    pointer-events: none;
+    backdrop-filter: blur(5px);
+}
+
+.mapTitle {
+    margin: 0 2px 6px;
+    color: #ffe27a;
+    font-size: 10px;
+    font-weight: bold;
+    letter-spacing: 1.5px;
+}
+
+#miniMap {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: 6px;
+    background: #8bb66f;
+}
+
+.mapLegend {
+    display: flex;
+    justify-content: space-between;
+    margin: 6px 2px 0;
+    color: rgba(255, 255, 255, 0.72);
+    font-size: 8px;
+    font-weight: bold;
+    letter-spacing: 0.6px;
+}
+
+.mapDot {
+    display: inline-block;
+    width: 7px;
+    height: 7px;
+    margin-right: 3px;
+    border-radius: 50%;
+}
+
+.playerDot {
+    background: #42a5f5;
+}
+
+.checkpointDot {
+    background: #ffd54f;
+}
+
 /* -------------------------------------------------
    CONTROLS
 ------------------------------------------------- */
@@ -177,6 +313,12 @@ canvas {
     display: flex;
 
     gap: 14px;
+
+    pointer-events: none;
+}
+
+.actionControl {
+    display: flex;
 
     pointer-events: none;
 }
@@ -232,13 +374,220 @@ canvas {
     letter-spacing: 1px;
 }
 
+#controls #action {
+    width: 70px;
+    height: 50px;
+
+    border-radius: 12px;
+
+    color: #ffe27a;
+
+    font-size: 11px;
+    letter-spacing: 1px;
+}
+
 /* Pressed */
 
-#controls button:active {
+#controls button:active,
+#controls button.is-pressed {
     transform: scale(0.92);
 
     background:
         rgba(255, 255, 255, 0.35);
+}
+
+/* -------------------------------------------------
+   GARAGE AND GAME MODES
+------------------------------------------------- */
+
+#garagePanel {
+    position: fixed;
+
+    inset: 0;
+
+    z-index: 60;
+
+    display: none;
+
+    justify-content: center;
+    align-items: center;
+
+    padding: 20px;
+
+    overflow-y: auto;
+
+    background:
+        linear-gradient(125deg,
+            rgba(5, 13, 22, 0.88),
+            rgba(18, 41, 51, 0.76));
+
+    pointer-events: auto;
+}
+
+#garagePanel.is-open {
+    display: flex;
+}
+
+.garageCard {
+    width: min(680px, 100%);
+
+    padding: 26px;
+
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    border-radius: 18px;
+
+    background: rgba(8, 15, 23, 0.88);
+
+    color: white;
+
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+}
+
+.eyebrow {
+    color: #ffe27a;
+
+    font-size: 11px;
+    font-weight: bold;
+    letter-spacing: 2px;
+}
+
+.garageCard h1 {
+    margin-top: 5px;
+
+    font-size: clamp(28px, 6vw, 42px);
+}
+
+.garageIntro {
+    max-width: 560px;
+
+    margin-top: 10px;
+
+    color: rgba(255, 255, 255, 0.78);
+
+    line-height: 1.5;
+}
+
+.modePicker {
+    display: flex;
+    gap: 10px;
+
+    margin: 22px 0 14px;
+}
+
+.modePicker button,
+.carCard button,
+.primaryButton {
+    border: 1px solid rgba(255, 255, 255, 0.28);
+    border-radius: 8px;
+
+    background: rgba(255, 255, 255, 0.1);
+
+    color: white;
+
+    font-weight: bold;
+
+    cursor: pointer;
+}
+
+.modePicker button {
+    flex: 1;
+
+    min-height: 42px;
+}
+
+.modePicker button.is-selected,
+.primaryButton {
+    border-color: #ffe27a;
+
+    background: #ffe27a;
+
+    color: #101820;
+}
+
+#carList {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+}
+
+.carCard {
+    min-height: 170px;
+
+    padding: 14px;
+
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 12px;
+
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.carCard.is-selected {
+    border-color: #ffe27a;
+}
+
+.carPaint {
+    width: 100%;
+    height: 24px;
+
+    margin-bottom: 12px;
+
+    border-radius: 999px;
+
+    box-shadow: inset 0 2px 6px rgba(255, 255, 255, 0.35);
+}
+
+.carCard h2 {
+    font-size: 15px;
+}
+
+.carCard p {
+    margin-top: 6px;
+
+    color: rgba(255, 255, 255, 0.72);
+
+    font-size: 11px;
+    line-height: 1.35;
+}
+
+.carCard button {
+    width: 100%;
+
+    min-height: 31px;
+
+    margin-top: 12px;
+
+    font-size: 10px;
+}
+
+.carCard button:disabled {
+    opacity: 0.42;
+
+    cursor: not-allowed;
+}
+
+.garageHint {
+    min-height: 20px;
+
+    margin: 16px 0 10px;
+
+    color: #ffe27a;
+
+    font-size: 12px;
+}
+
+.primaryButton {
+    width: 100%;
+
+    min-height: 48px;
+}
+
+.controlsHint {
+    margin-top: 12px;
+
+    color: rgba(255, 255, 255, 0.62);
+
+    font-size: 11px;
+    text-align: center;
 }
 
 /* -------------------------------------------------
@@ -338,6 +687,13 @@ canvas {
 
     .speed {
         font-size: 40px;
+    }
+
+    #mapPanel {
+        top: 82px;
+        right: 14px;
+        transform: scale(0.86);
+        transform-origin: top right;
     }
 }
 
