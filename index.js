@@ -13,5 +13,5 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-module.exports = require('playwright-core');
+require('./lib/bootstrap');
+module.exports = require('./lib/coreBundle').inprocess.playwright;
