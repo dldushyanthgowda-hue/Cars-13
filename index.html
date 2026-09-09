@@ -24,7 +24,7 @@
     <meta name="apple-mobile-web-app-status-bar-style"
           content="black-translucent">
 
-    <title>Cars 13 — V8</title>
+    <title>Cars 13 — V11</title>
 
     <link rel="stylesheet"
           href="style.css">
@@ -88,6 +88,33 @@
 
             </div>
 
+            <div id="progress">
+                <span id="modeLabel">CAREER</span>
+                <span id="level">LEVEL 1</span>
+                <span id="cash">$0</span>
+            </div>
+
+        </div>
+
+        <button
+            id="menuButton"
+            type="button"
+            aria-label="Open garage">
+            GARAGE
+        </button>
+
+        <div
+            id="interactionPrompt"
+            aria-live="polite">
+        </div>
+
+        <div id="mapPanel" aria-label="World map">
+            <div class="mapTitle">CITY MAP</div>
+            <canvas id="miniMap" width="220" height="150"></canvas>
+            <div class="mapLegend">
+                <span><i class="mapDot playerDot"></i> YOU</span>
+                <span><i class="mapDot checkpointDot"></i> GOAL</span>
+            </div>
         </div>
 
 
@@ -118,6 +145,17 @@
 
             </div>
 
+            <div class="actionControl">
+
+                <button
+                    id="action"
+                    type="button"
+                    aria-label="Exit vehicle">
+                    EXIT
+                </button>
+
+            </div>
+
 
             <!-- PEDALS -->
 
@@ -141,6 +179,62 @@
 
         </div>
 
+        <section
+            id="garagePanel"
+            class="is-open"
+            aria-label="Garage">
+
+            <div class="garageCard">
+
+                <p class="eyebrow">CARS 13</p>
+                <h1>V11: Drive Your Way</h1>
+                <p class="garageIntro">
+                    Build your collection, race through career levels, or
+                    explore the world on foot and behind the wheel.
+                </p>
+
+                <div class="modePicker">
+
+                    <button
+                        id="careerMode"
+                        class="is-selected"
+                        type="button">
+                        CAREER
+                    </button>
+
+                    <button
+                        id="freeMode"
+                        type="button">
+                        FREE DRIVE
+                    </button>
+
+                </div>
+
+                <div
+                    id="carList"
+                    aria-label="Available cars">
+                </div>
+
+                <p
+                    id="garageHint"
+                    class="garageHint">
+                </p>
+
+                <button
+                    id="startDrive"
+                    class="primaryButton"
+                    type="button">
+                    START CAREER
+                </button>
+
+                <p class="controlsHint">
+                    Drive: WASD / Arrow keys · Exit or enter: E
+                </p>
+
+            </div>
+
+        </section>
+
     </div>
 
 
@@ -154,10 +248,10 @@
 
 
     <!-- =========================================
-         CARS 13 V8 GAME
+         CARS 13 V11 GAME
     ========================================== -->
 
-    <script src="game-v8.js"></script>
+    <script src="game-v11.js"></script>
 
 
     <!-- =========================================
