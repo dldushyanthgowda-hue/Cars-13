@@ -299,7 +299,378 @@
         );
 
     </script>
+<!-- ============================================================
+     CARS 13 V12 — MOBILE WALKING CONTROLS
+     ============================================================ -->
 
+<style>
+/* ============================================================
+   MOBILE WALKING JOYSTICK
+   ============================================================ */
+
+#mobileJoystick {
+    position: fixed;
+    left: 24px;
+    bottom: 28px;
+
+    width: 130px;
+    height: 130px;
+
+    border-radius: 50%;
+
+    background: rgba(20, 25, 35, 0.55);
+    border: 3px solid rgba(255, 255, 255, 0.55);
+
+    box-shadow:
+        0 6px 20px rgba(0, 0, 0, 0.35),
+        inset 0 0 20px rgba(255, 255, 255, 0.08);
+
+    display: none;
+
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
+
+    z-index: 1000;
+}
+
+/* Show joystick when walking */
+
+#mobileJoystick.is-visible {
+    display: block;
+}
+
+/* ============================================================
+   JOYSTICK CENTER
+   ============================================================ */
+
+#mobileJoystick::before {
+    content: "";
+
+    position: absolute;
+
+    left: 50%;
+    top: 50%;
+
+    width: 70px;
+    height: 70px;
+
+    transform:
+        translate(-50%, -50%);
+
+    border-radius: 50%;
+
+    background:
+        rgba(255, 255, 255, 0.08);
+
+    pointer-events: none;
+}
+
+/* ============================================================
+   JOYSTICK KNOB
+   ============================================================ */
+
+#mobileJoystickKnob {
+
+    position: absolute;
+
+    left: 50%;
+    top: 50%;
+
+    width: 58px;
+    height: 58px;
+
+    transform:
+        translate(-50%, -50%);
+
+    border-radius: 50%;
+
+    background:
+        rgba(255, 255, 255, 0.88);
+
+    border:
+        2px solid rgba(255, 255, 255, 0.95);
+
+    box-shadow:
+        0 4px 12px rgba(0, 0, 0, 0.35);
+
+    pointer-events: none;
+
+}
+
+/* ============================================================
+   MOBILE ACTION BUTTON
+   ============================================================ */
+
+#mobileAction {
+
+    position: fixed;
+
+    right: 28px;
+    bottom: 42px;
+
+    width: 105px;
+    height: 65px;
+
+    border-radius: 20px;
+
+    border:
+        2px solid rgba(255, 255, 255, 0.65);
+
+    background:
+        rgba(25, 30, 40, 0.75);
+
+    color: white;
+
+    font-size: 17px;
+    font-weight: 800;
+
+    letter-spacing: 0.5px;
+
+    display: none;
+
+    align-items: center;
+    justify-content: center;
+
+    touch-action: manipulation;
+    user-select: none;
+
+    z-index: 1001;
+
+}
+
+/* Show action button */
+
+#mobileAction.is-visible {
+    display: flex;
+}
+
+/* ============================================================
+   MOBILE CAMERA BUTTON
+   ============================================================ */
+
+#mobileCamera {
+
+    position: fixed;
+
+    right: 28px;
+    bottom: 120px;
+
+    width: 65px;
+    height: 65px;
+
+    border-radius: 50%;
+
+    border:
+        2px solid rgba(255, 255, 255, 0.65);
+
+    background:
+        rgba(25, 30, 40, 0.72);
+
+    color: white;
+
+    font-size: 25px;
+
+    display: none;
+
+    align-items: center;
+    justify-content: center;
+
+    touch-action: manipulation;
+    user-select: none;
+
+    z-index: 1001;
+
+}
+
+/* Show camera button */
+
+#mobileCamera.is-visible {
+    display: flex;
+}
+
+/* ============================================================
+   SMALL SCREENS
+   ============================================================ */
+
+@media (
+    max-width: 600px
+) {
+
+    #mobileJoystick {
+
+        left: 15px;
+        bottom: 18px;
+
+        width: 125px;
+        height: 125px;
+
+    }
+
+    #mobileAction {
+
+        right: 18px;
+        bottom: 30px;
+
+        width: 100px;
+        height: 62px;
+
+    }
+
+    #mobileCamera {
+
+        right: 18px;
+        bottom: 105px;
+
+        width: 60px;
+        height: 60px;
+
+    }
+
+}
+
+/* ============================================================
+   LANDSCAPE PHONE
+   ============================================================ */
+
+@media (
+    max-height: 500px
+) {
+
+    #mobileJoystick {
+
+        bottom: 12px;
+
+        width: 110px;
+        height: 110px;
+
+    }
+
+    #mobileAction {
+
+        bottom: 20px;
+
+        height: 55px;
+
+    }
+
+    #mobileCamera {
+
+        bottom: 88px;
+
+        width: 52px;
+        height: 52px;
+
+    }
+
+}
+
+/* ============================================================
+   TOUCH DEVICE HELP
+   ============================================================ */
+
+@media (
+    pointer: coarse
+) {
+
+    #mobileJoystick,
+    #mobileAction,
+    #mobileCamera {
+
+        -webkit-tap-highlight-color:
+            transparent;
+
+    }
+
+}
+
+/* ============================================================
+   DESKTOP
+   ============================================================ */
+
+@media (
+    pointer: fine
+) {
+
+    #mobileJoystick,
+    #mobileAction,
+    #mobileCamera {
+
+        display: none !important;
+
+    }
+
+}
+</style>
+
+<!-- ============================================================
+     MOBILE JOYSTICK HTML
+     ============================================================ -->
+
+<div
+    id="mobileJoystick"
+    aria-label="Walking joystick"
+>
+
+    <div
+        id="mobileJoystickKnob"
+    ></div>
+
+</div>
+
+<!-- ============================================================
+     MOBILE ACTION BUTTON
+     ============================================================ -->
+
+<button
+    id="mobileAction"
+    type="button"
+    aria-label="Enter or exit vehicle"
+>
+    EXIT
+</button>
+
+<!-- ============================================================
+     MOBILE CAMERA BUTTON
+     ============================================================ -->
+
+<button
+    id="mobileCamera"
+    type="button"
+    aria-label="Change camera"
+>
+    ◉
+</button>
+
+<!-- ============================================================
+     V12 FINISHED
+     ============================================================ -->
+
+<script>
+console.log(
+    "========================================"
+);
+
+console.log(
+    " CARS 13 V12 READY "
+);
+
+console.log(
+    " Mobile walking joystick: READY "
+);
+
+console.log(
+    " City + airport: READY "
+);
+
+console.log(
+    " Infinite road: READY "
+);
+
+console.log(
+    "========================================"
+);
+</script>
 </body>
 
 </html>
