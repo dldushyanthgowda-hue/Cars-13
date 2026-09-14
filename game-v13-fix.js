@@ -1,51 +1,107 @@
 // ============================================================
-// CARS 13 V13 — STABILITY PATCH
-// Road flicker + smoother car and on-foot controls
-// Loaded AFTER game-v12.js
+// CARS 13 V13 — STABILITY + GAME MODE PATCH
 // ============================================================
 
 (function () {
     "use strict";
 
-    // --------------------------------------------------------
-    // ROAD FLICKER FIX
-    // --------------------------------------------------------
-    // V12 can rebuild the infinite road while the player drives.
-    // Rebuilding visible road meshes can cause depth/shimmer issues.
-    // The V12 road is already generated over the playable area, so
-    // keep the existing road stable while playing.
     if (typeof window.updateInfiniteRoad === "function") {
-        window.updateInfiniteRoad = function () {
-            // Intentionally empty: keep the existing road meshes stable.
-        };
+        window.updateInfiniteRoad = function () {};
     }
 
-    // --------------------------------------------------------
-    // CAR CONTROL STABILITY
-    // --------------------------------------------------------
-    // Limit a large frame delta so a temporary browser lag spike does
-    // not make the car jump, turn sharply, or behave inconsistently.
     if (typeof window.updateDriving === "function") {
         const originalUpdateDriving = window.updateDriving;
-
         window.updateDriving = function (delta) {
-            const safeDelta = Math.min(delta, 0.05);
-            originalUpdateDriving(safeDelta);
+            originalUpdateDriving(Math.min(delta, 0.05));
         };
     }
 
-    // --------------------------------------------------------
-    // ON-FOOT CONTROL STABILITY
-    // --------------------------------------------------------
-    // Same protection for WASD/arrow keys and the mobile joystick.
     if (typeof window.updateOnFoot === "function") {
         const originalUpdateOnFoot = window.updateOnFoot;
-
         window.updateOnFoot = function (delta) {
-            const safeDelta = Math.min(delta, 0.05);
-            originalUpdateOnFoot(safeDelta);
+            originalUpdateOnFoot(Math.min(delta, 0.05));
         };
     }
 
-    console.log("CARS 13 V13 stability patch loaded");
+    function ensureGameModeButtons() {
+        const garagePanel = document.getElementById("garagePanel");
+        if (!garagePanel) return;
+
+        let picker = garagePanel.querySelector(".modePicker");
+
+        if (!picker) {
+            const startButton = document.getElementById("startDrive");
+            picker = document.createElement("div");
+            picker.className = "modePicker";
+            picker.style.display = "flex";
+            picker.style.gap = "10px";
+            picker.style.margin = "22px 0 14px";
+
+            const career = document.createElement("button");
+            career.id = "careerMode";
+            career.type = "button";
+            career.textContent = "CAREER";
+
+            const free = document.createElement("button");
+            free.id = "freeMode";
+            free.type = "button";
+            free.textContent = "FREE DRIVE";
+
+            [career, free].forEach((button) => {
+                button.style.flex = "1";
+                button.style.minHeight = "42px";
+                button.style.pointerEvents = "auto";
+                button.style.cursor = "pointer";
+            });
+
+            picker.append(career, free);
+
+            if (startButton) {
+                startButton.parentNode.insertBefore(picker, startButton);
+            } else {
+                garagePanel.querySelector(".garageCard")?.appendChild(picker);
+            }
+        }
+
+        const career = document.getElementById("careerMode");
+        const free = document.getElementById("freeMode");
+        if (!career || !free) return;
+
+        if (!career.dataset.v13ModeReady) {
+            career.dataset.v13ModeReady = "1";
+            career.addEventListener("click", function (event) {
+                event.preventDefault();
+                event.stopPropagation();
+                selectedMode = "career";
+                career.classList.add("is-selected");
+                free.classList.remove("is-selected");
+                if (typeof renderGarage === "function") renderGarage();
+            });
+        }
+
+        if (!free.dataset.v13ModeReady) {
+            free.dataset.v13ModeReady = "1";
+            free.addEventListener("click", function (event) {
+                event.preventDefault();
+                event.stopPropagation();
+                selectedMode = "free";
+                free.classList.add("is-selected");
+                career.classList.remove("is-selected");
+                if (typeof renderGarage === "function") renderGarage();
+            });
+        }
+
+        career.classList.toggle("is-selected", selectedMode === "career");
+        free.classList.toggle("is-selected", selectedMode === "free");
+    }
+
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", ensureGameModeButtons);
+    } else {
+        ensureGameModeButtons();
+    }
+
+    setTimeout(ensureGameModeButtons, 100);
+
+    console.log("CARS 13 V13 game-mode patch loaded");
 })();
