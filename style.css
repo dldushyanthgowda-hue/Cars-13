@@ -20,725 +20,109 @@ body {
     font-family: Arial, sans-serif;
 }
 
-/* -------------------------------------------------
-   THREE.JS CANVAS
-------------------------------------------------- */
-
 canvas {
     display: block;
-
     position: fixed;
-
     top: 0;
     left: 0;
-
     width: 100%;
     height: 100%;
-
     z-index: 1;
 }
 
-/* -------------------------------------------------
-   GAME
-------------------------------------------------- */
-
 #game {
     position: fixed;
-
     inset: 0;
-
     width: 100%;
     height: 100%;
-
     overflow: hidden;
-
     z-index: 2;
-
     pointer-events: none;
 }
-
-/* -------------------------------------------------
-   HUD
-------------------------------------------------- */
 
 #hud {
     position: absolute;
-
     top: 18px;
     left: 22px;
-
     display: flex;
     align-items: flex-start;
     gap: 18px;
-
     color: white;
-
     z-index: 10;
-
-    text-shadow:
-        2px 2px 4px #000,
-        0 0 8px #000;
-
+    text-shadow: 2px 2px 4px #000, 0 0 8px #000;
     pointer-events: none;
 }
 
-/* Speed */
-
-.speed {
-    min-width: 115px;
-
-    font-size: 44px;
-    line-height: 1;
-
-    font-weight: 800;
-
-    letter-spacing: 1px;
-}
-
-.speed small {
-    display: block;
-
-    margin-top: 5px;
-
-    font-size: 12px;
-
-    letter-spacing: 2px;
-
-    opacity: 0.9;
-}
-
-/* Gear */
-
-.gear {
-    margin-top: 5px;
-
-    padding: 8px 12px;
-
-    border-radius: 8px;
-
-    background: rgba(0, 0, 0, 0.45);
-
-    font-size: 12px;
-
-    letter-spacing: 1px;
-}
-
-.gear span {
-    margin-left: 5px;
-
-    font-size: 24px;
-
-    font-weight: bold;
-}
-
-#progress {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-
-    margin-top: 5px;
-    padding: 8px 12px;
-
-    border-radius: 8px;
-
-    background: rgba(0, 0, 0, 0.45);
-
-    font-size: 11px;
-    font-weight: bold;
-    letter-spacing: 1px;
-}
-
-#progress span:last-child {
-    color: #ffe27a;
-}
+.speed { min-width: 115px; font-size: 44px; line-height: 1; font-weight: 800; letter-spacing: 1px; }
+.speed small { display: block; margin-top: 5px; font-size: 12px; letter-spacing: 2px; opacity: .9; }
+.gear { margin-top: 5px; padding: 8px 12px; border-radius: 8px; background: rgba(0,0,0,.45); font-size: 12px; letter-spacing: 1px; }
+.gear span { margin-left: 5px; font-size: 24px; font-weight: bold; }
+#progress { display: flex; flex-direction: column; gap: 5px; margin-top: 5px; padding: 8px 12px; border-radius: 8px; background: rgba(0,0,0,.45); font-size: 11px; font-weight: bold; letter-spacing: 1px; }
+#progress span:last-child { color: #ffe27a; }
 
 #menuButton {
     position: fixed;
-
     top: 18px;
     right: 22px;
-
     z-index: 25;
-
     padding: 10px 14px;
-
-    border: 1px solid rgba(255, 255, 255, 0.45);
+    border: 1px solid rgba(255,255,255,.45);
     border-radius: 8px;
-
-    background: rgba(0, 0, 0, 0.48);
-
+    background: rgba(0,0,0,.48);
     color: white;
-
     font-size: 11px;
     font-weight: bold;
     letter-spacing: 1px;
-
     pointer-events: auto;
 }
 
-#interactionPrompt {
-    position: fixed;
-
-    left: 50%;
-    bottom: 115px;
-
-    z-index: 24;
-
-    transform: translateX(-50%);
-
-    padding: 10px 14px;
-
-    border-radius: 8px;
-
-    background: rgba(0, 0, 0, 0.62);
-
-    color: white;
-
-    font-size: 12px;
-    font-weight: bold;
-    letter-spacing: 0.8px;
-
-    opacity: 0;
-
-    pointer-events: none;
-
-    transition: opacity 0.2s;
-}
-
-#interactionPrompt.is-visible {
-    opacity: 1;
-}
-
-#mapPanel {
-    position: fixed;
-    top: 60px;
-    right: 22px;
-    z-index: 24;
-    width: 236px;
-    padding: 9px;
-    border: 1px solid rgba(255, 255, 255, 0.35);
-    border-radius: 10px;
-    background: rgba(5, 15, 22, 0.78);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
-    color: white;
-    pointer-events: none;
-    backdrop-filter: blur(5px);
-}
-
-.mapTitle {
-    margin: 0 2px 6px;
-    color: #ffe27a;
-    font-size: 10px;
-    font-weight: bold;
-    letter-spacing: 1.5px;
-}
-
-#miniMap {
-    display: block;
-    width: 100%;
-    height: auto;
-    border-radius: 6px;
-    background: #8bb66f;
-}
-
-.mapLegend {
-    display: flex;
-    justify-content: space-between;
-    margin: 6px 2px 0;
-    color: rgba(255, 255, 255, 0.72);
-    font-size: 8px;
-    font-weight: bold;
-    letter-spacing: 0.6px;
-}
-
-.mapDot {
-    display: inline-block;
-    width: 7px;
-    height: 7px;
-    margin-right: 3px;
-    border-radius: 50%;
-}
-
-.playerDot {
-    background: #42a5f5;
-}
-
-.checkpointDot {
-    background: #ffd54f;
-}
-
-/* -------------------------------------------------
-   CONTROLS
-------------------------------------------------- */
-
-#controls {
-    position: absolute;
-
-    left: 0;
-    right: 0;
-    bottom: 18px;
-
-    width: 100%;
-
-    display: flex;
-
-    justify-content: space-between;
-
-    align-items: flex-end;
-
-    padding:
-        0 22px
-        env(safe-area-inset-right)
-        env(safe-area-inset-bottom)
-        env(safe-area-inset-left);
-
-    z-index: 20;
-
-    pointer-events: none;
-}
-
-/* Left steering */
-
-.steeringControls {
-    display: flex;
-
-    gap: 14px;
-
-    pointer-events: none;
-}
-
-/* Right pedals */
-
-.pedalControls {
-    display: flex;
-
-    gap: 14px;
-
-    pointer-events: none;
-}
-
-.actionControl {
-    display: flex;
-
-    pointer-events: none;
-}
-
-/* All buttons */
-
-#controls button {
-    pointer-events: auto;
-
-    width: 72px;
-    height: 72px;
-
-    border: 2px solid
-        rgba(255, 255, 255, 0.45);
-
-    border-radius: 50%;
-
-    background:
-        rgba(0, 0, 0, 0.48);
-
-    color: white;
-
-    font-size: 25px;
-
-    font-weight: bold;
-
-    touch-action: none;
-
-    -webkit-touch-callout: none;
-
-    box-shadow:
-        0 4px 12px
-        rgba(0, 0, 0, 0.35);
-
-    backdrop-filter: blur(4px);
-
-    transition:
-        transform 0.08s,
-        background 0.08s;
-}
-
-/* Pedals */
-
-#controls #brake,
-#controls #gas {
-    width: 82px;
-    height: 82px;
-
-    border-radius: 18px;
-
-    font-size: 13px;
-
-    letter-spacing: 1px;
-}
-
-#controls #action {
-    width: 70px;
-    height: 50px;
-
-    border-radius: 12px;
-
-    color: #ffe27a;
-
-    font-size: 11px;
-    letter-spacing: 1px;
-}
-
-/* Pressed */
-
-#controls button:active,
-#controls button.is-pressed {
-    transform: scale(0.92);
-
-    background:
-        rgba(255, 255, 255, 0.35);
-}
-
-/* -------------------------------------------------
-   GARAGE AND GAME MODES
-------------------------------------------------- */
-
-#garagePanel {
-    position: fixed;
-
-    inset: 0;
-
-    z-index: 60;
-
-    display: none;
-
-    justify-content: center;
-    align-items: center;
-
-    padding: 20px;
-
-    overflow-y: auto;
-
-    background:
-        linear-gradient(125deg,
-            rgba(5, 13, 22, 0.88),
-            rgba(18, 41, 51, 0.76));
-
-    pointer-events: auto;
-}
-
-#garagePanel.is-open {
-    display: flex;
-}
-
-.garageCard {
-    width: min(680px, 100%);
-
-    padding: 26px;
-
-    border: 1px solid rgba(255, 255, 255, 0.22);
-    border-radius: 18px;
-
-    background: rgba(8, 15, 23, 0.88);
-
-    color: white;
-
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
-}
-
-.eyebrow {
-    color: #ffe27a;
-
-    font-size: 11px;
-    font-weight: bold;
-    letter-spacing: 2px;
-}
-
-.garageCard h1 {
-    margin-top: 5px;
-
-    font-size: clamp(28px, 6vw, 42px);
-}
-
-.garageIntro {
-    max-width: 560px;
-
-    margin-top: 10px;
-
-    color: rgba(255, 255, 255, 0.78);
-
-    line-height: 1.5;
-}
-
-.modePicker {
-    display: flex;
-    gap: 10px;
-
-    margin: 22px 0 14px;
-}
-
-.modePicker button,
-.carCard button,
-.primaryButton {
-    border: 1px solid rgba(255, 255, 255, 0.28);
-    border-radius: 8px;
-
-    background: rgba(255, 255, 255, 0.1);
-
-    color: white;
-
-    font-weight: bold;
-
-    cursor: pointer;
-}
-
-.modePicker button {
-    flex: 1;
-
-    min-height: 42px;
-}
-
-.modePicker button.is-selected,
-.primaryButton {
-    border-color: #ffe27a;
-
-    background: #ffe27a;
-
-    color: #101820;
-}
-
-#carList {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 10px;
-}
-
-.carCard {
-    min-height: 170px;
-
-    padding: 14px;
-
-    border: 1px solid rgba(255, 255, 255, 0.18);
-    border-radius: 12px;
-
-    background: rgba(255, 255, 255, 0.06);
-}
-
-.carCard.is-selected {
-    border-color: #ffe27a;
-}
-
-.carPaint {
-    width: 100%;
-    height: 24px;
-
-    margin-bottom: 12px;
-
-    border-radius: 999px;
-
-    box-shadow: inset 0 2px 6px rgba(255, 255, 255, 0.35);
-}
-
-.carCard h2 {
-    font-size: 15px;
-}
-
-.carCard p {
-    margin-top: 6px;
-
-    color: rgba(255, 255, 255, 0.72);
-
-    font-size: 11px;
-    line-height: 1.35;
-}
-
-.carCard button {
-    width: 100%;
-
-    min-height: 31px;
-
-    margin-top: 12px;
-
-    font-size: 10px;
-}
-
-.carCard button:disabled {
-    opacity: 0.42;
-
-    cursor: not-allowed;
-}
-
-.garageHint {
-    min-height: 20px;
-
-    margin: 16px 0 10px;
-
-    color: #ffe27a;
-
-    font-size: 12px;
-}
-
-.primaryButton {
-    width: 100%;
-
-    min-height: 48px;
-}
-
-.controlsHint {
-    margin-top: 12px;
-
-    color: rgba(255, 255, 255, 0.62);
-
-    font-size: 11px;
-    text-align: center;
-}
-
-/* -------------------------------------------------
-   ROTATE PHONE MESSAGE
-------------------------------------------------- */
-
-#rotateMessage {
-    position: fixed;
-
-    inset: 0;
-
-    z-index: 100;
-
-    display: none;
-
-    flex-direction: column;
-
-    justify-content: center;
-
-    align-items: center;
-
-    text-align: center;
-
-    padding: 25px;
-
-    background: #101820;
-
-    color: white;
-}
-
-.rotateIcon {
-    font-size: 64px;
-
-    margin-bottom: 15px;
-
-    animation:
-        rotatePhone 1.8s
-        ease-in-out infinite;
-}
-
-#rotateMessage h2 {
-    font-size: 25px;
-
-    margin-bottom: 8px;
-}
-
-#rotateMessage p {
-    font-size: 15px;
-
-    opacity: 0.75;
-
-    max-width: 300px;
-}
-
-@keyframes rotatePhone {
-
-    0% {
-        transform: rotate(0deg);
-    }
-
-    45% {
-        transform: rotate(90deg);
-    }
-
-    70% {
-        transform: rotate(90deg);
-    }
-
-    100% {
-        transform: rotate(0deg);
-    }
-}
-
-/* -------------------------------------------------
-   LANDSCAPE PHONE
-------------------------------------------------- */
-
-@media (orientation: landscape) {
-
-    #controls {
-        bottom: 14px;
-
-        padding-left: 25px;
-        padding-right: 25px;
-    }
-
-    #controls button {
-        width: 68px;
-        height: 68px;
-    }
-
-    #controls #brake,
-    #controls #gas {
-        width: 82px;
-        height: 68px;
-    }
-
-    .speed {
-        font-size: 40px;
-    }
-
-    #mapPanel {
-        top: 82px;
-        right: 14px;
-        transform: scale(0.86);
-        transform-origin: top right;
-    }
-}
-
-/* -------------------------------------------------
-   SMALL LANDSCAPE SCREENS
-------------------------------------------------- */
-
-@media (
-    orientation: landscape
-) and (max-height: 450px) {
-
-    #hud {
-        top: 10px;
-        left: 15px;
-    }
-
-    .speed {
-        font-size: 32px;
-    }
-
-    .gear {
-        font-size: 10px;
-        padding: 5px 8px;
-    }
-
-    .gear span {
-        font-size: 18px;
-    }
-
-    #controls {
-        bottom: 8px;
-    }
-
-    #controls button {
-        width: 58px;
-        height: 58px;
-
-        font-size: 21px;
-    }
-
-    #controls #brake,
-    #controls #gas {
-        width: 70px;
-        height: 58px;
-
-        font-size: 11px;
-    }
+#interactionPrompt { position: fixed; left: 50%; bottom: 115px; z-index: 24; transform: translateX(-50%); padding: 10px 14px; border-radius: 8px; background: rgba(0,0,0,.62); color: white; font-size: 12px; font-weight: bold; letter-spacing: .8px; opacity: 0; pointer-events: none; transition: opacity .2s; }
+#interactionPrompt.is-visible { opacity: 1; }
+#mapPanel { position: fixed; top: 60px; right: 22px; z-index: 24; width: 236px; padding: 9px; border: 1px solid rgba(255,255,255,.35); border-radius: 10px; background: rgba(5,15,22,.78); box-shadow: 0 8px 24px rgba(0,0,0,.28); color: white; pointer-events: none; backdrop-filter: blur(5px); }
+.mapTitle { margin: 0 2px 6px; color: #ffe27a; font-size: 10px; font-weight: bold; letter-spacing: 1.5px; }
+#miniMap { display: block; width: 100%; height: auto; border-radius: 6px; background: #8bb66f; }
+.mapLegend { display: flex; justify-content: space-between; margin: 6px 2px 0; color: rgba(255,255,255,.72); font-size: 8px; font-weight: bold; letter-spacing: .6px; }
+.mapDot { display: inline-block; width: 7px; height: 7px; margin-right: 3px; border-radius: 50%; }
+.playerDot { background: #42a5f5; }
+.checkpointDot { background: #ffd54f; }
+
+#controls { position: absolute; left: 0; right: 0; bottom: 18px; width: 100%; display: flex; justify-content: space-between; align-items: flex-end; padding: 0 22px env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left); z-index: 20; pointer-events: none; }
+.steeringControls, .pedalControls, .actionControl { display: flex; pointer-events: none; }
+.steeringControls, .pedalControls { gap: 14px; }
+#controls button { pointer-events: auto; width: 72px; height: 72px; border: 2px solid rgba(255,255,255,.45); border-radius: 50%; background: rgba(0,0,0,.48); color: white; font-size: 25px; font-weight: bold; touch-action: none; -webkit-touch-callout: none; box-shadow: 0 4px 12px rgba(0,0,0,.35); backdrop-filter: blur(4px); transition: transform .08s, background .08s; }
+#controls #brake, #controls #gas { width: 82px; height: 82px; border-radius: 18px; font-size: 13px; letter-spacing: 1px; }
+#controls #action { width: 70px; height: 50px; border-radius: 12px; color: #ffe27a; font-size: 11px; letter-spacing: 1px; }
+#controls button:active, #controls button.is-pressed { transform: scale(.92); background: rgba(255,255,255,.35); }
+
+#garagePanel { position: fixed; inset: 0; z-index: 60; display: none; justify-content: center; align-items: center; padding: 20px; overflow-y: auto; background: linear-gradient(125deg, rgba(5,13,22,.88), rgba(18,41,51,.76)); pointer-events: auto; }
+#garagePanel.is-open { display: flex; }
+.garageCard { width: min(680px,100%); padding: 26px; border: 1px solid rgba(255,255,255,.22); border-radius: 18px; background: rgba(8,15,23,.88); color: white; box-shadow: 0 20px 60px rgba(0,0,0,.4); }
+.eyebrow { color: #ffe27a; font-size: 11px; font-weight: bold; letter-spacing: 2px; }
+.garageCard h1 { margin-top: 5px; font-size: clamp(28px,6vw,42px); }
+.garageIntro { max-width: 560px; margin-top: 10px; color: rgba(255,255,255,.78); line-height: 1.5; }
+.modePicker { display: flex; gap: 10px; margin: 22px 0 14px; position: relative; z-index: 2; }
+.modePicker button, .carCard button, .primaryButton { border: 1px solid rgba(255,255,255,.28); border-radius: 8px; background: rgba(255,255,255,.1); color: white; font-weight: bold; cursor: pointer; }
+.modePicker button { flex: 1; min-height: 42px; touch-action: manipulation; pointer-events: auto; position: relative; z-index: 3; }
+.modePicker button.is-selected, .primaryButton { border-color: #ffe27a; background: #ffe27a; color: #101820; }
+#carList { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 10px; }
+.carCard { min-height: 170px; padding: 14px; border: 1px solid rgba(255,255,255,.18); border-radius: 12px; background: rgba(255,255,255,.06); }
+.carCard.is-selected { border-color: #ffe27a; }
+.carPaint { width: 100%; height: 24px; margin-bottom: 12px; border-radius: 999px; box-shadow: inset 0 2px 6px rgba(255,255,255,.35); }
+.carCard h2 { font-size: 15px; }
+.carCard p { margin-top: 6px; color: rgba(255,255,255,.72); font-size: 11px; line-height: 1.35; }
+.carCard button { width: 100%; min-height: 31px; margin-top: 12px; font-size: 10px; }
+.carCard button:disabled { opacity: .42; cursor: not-allowed; }
+.garageHint { min-height: 20px; margin: 16px 0 10px; color: #ffe27a; font-size: 12px; }
+.primaryButton { width: 100%; min-height: 48px; touch-action: manipulation; pointer-events: auto; position: relative; z-index: 3; }
+.controlsHint { margin-top: 12px; color: rgba(255,255,255,.62); font-size: 11px; text-align: center; }
+
+#rotateMessage { position: fixed; inset: 0; z-index: 100; display: none; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 25px; background: #101820; color: white; }
+
+@media (max-width: 700px) {
+    .garageCard { padding: 18px; }
+    #carList { grid-template-columns: 1fr; }
+    .carCard { min-height: 0; }
+    #hud { left: 12px; top: 12px; gap: 8px; }
+    .speed { min-width: 80px; font-size: 32px; }
+    #menuButton { top: 12px; right: 12px; }
 }
