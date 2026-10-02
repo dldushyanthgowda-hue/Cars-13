@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#141a33">
+<title>Cars 13</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body class="ui-open">
+<div id="hud" class="hide">
+  <div><div id="spd">0<small>km/h</small></div><div id="gear">Gear 1</div></div>
+  <div id="right"><div id="lvl">Level 1</div><div id="cash">$0</div><div id="bar"><div id="fill"></div></div></div>
+</div>
+<div id="toast"></div>
+<button id="menuButton" class="menu-button hide" aria-label="Pause game" title="Pause game"><span></span><span></span></button>
+<button id="miniButton" class="hide" aria-label="Open navigation map"><canvas id="mini" width="140" height="140"></canvas></button>
+
+<div class="ov hide" id="mapOv"><div class="card wide">
+  <canvas id="bigmap" width="600" height="600"></canvas>
+  <div class="row"><button class="btn go" id="closeMap" aria-label="Close map">×</button></div>
+</div></div>
+<div class="pad hide" id="padL"><button data-k="l">◀</button><button data-k="r">▶</button></div>
+<div class="pad hide" id="padR"><button data-k="b">Brake</button><button data-k="g">Gas</button></div>
+<div class="ov garage-screen" id="garage">
+  <div id="vehicleStage" class="vehicle-stage" aria-label="Drag to rotate the car">
+    <div class="stage-caption"><span class="live-dot"></span> 360° VEHICLE VIEW <small>Drag left/right to orbit, up/down for top view</small></div>
+    <div class="stage-views" aria-label="Preset camera views">
+      <button type="button" data-view="front">Front</button><button type="button" data-view="front-left">Front L</button><button type="button" data-view="left">Left</button><button type="button" data-view="rear-left">Rear L</button><button type="button" data-view="rear">Rear</button><button type="button" data-view="rear-right">Rear R</button><button type="button" data-view="right">Right</button><button type="button" data-view="front-right">Front R</button><button type="button" data-view="top">Top</button>
+    </div>
+  </div>
+  <header class="garage-top">
+    <div class="brand"><span class="brand-mark">C13</span><div><b>CARS 13</b><small>PERSONAL GARAGE</small></div></div>
+    <nav class="mode-tabs" aria-label="Game sections">
+      <button class="tab active" id="tabGarage">Garage</button>
+      <button class="tab" id="mCareer">Career <small>Levels</small></button>
+      <button class="tab" id="mFree">Free drive</button>
+    </nav>
+    <div class="garage-balance"><small>CASH</small><b id="garageCash">$0</b><span>BEST <b id="best">0</b> m</span></div>
+  </header>
+  <main class="garage-main">
+    <section class="garage-identity">
+      <div class="eyebrow">YOUR NEXT DRIVE</div><h1 id="carName">Street</h1>
+      <p id="carStats">Built for the city</p>
+    </section>
+    <section class="garage-panel">
+      <div class="panel-heading"><div><span class="eyebrow">BUILD &amp; PERSONALIZE</span><h2 id="panelCarName">Make it yours</h2><p id="panelCarStats"></p></div><span class="panel-step" id="panelStep">01 / 08</span></div>
+      <div class="custom-section garage-collection"><h3>Car collection</h3>
+        <div class="car-carousel">
+          <button class="car-arrow" id="prevCar" type="button" aria-label="Previous car">&#8249;</button>
+          <div class="car-summary" aria-live="polite"><b id="catalogName"></b><span id="catalogType"></span><small id="catalogStep"></small></div>
+          <button class="car-arrow" id="nextCar" type="button" aria-label="Next car">&#8250;</button>
+        </div>
+        <button class="btn purchase" id="buyCar" type="button"></button>
+        <p id="note" class="garage-note" role="status" aria-live="polite"></p>
+      </div>
+      <div class="custom-section"><h3>Paint</h3><div class="swatches" id="paintOptions" aria-label="Car paint colors"></div></div>
+      <div class="custom-section"><h3>Decals</h3><div class="option-list" id="decalOptions"></div></div>
+      <div class="custom-section"><h3>Wheels</h3><div class="option-list" id="tireOptions"></div></div>
+      <div class="custom-section"><h3>Mirrors</h3><div class="option-list" id="mirrorOptions"></div></div>
+      <div class="custom-section"><h3>Headlights</h3><div class="option-list" id="headlightOptions"></div></div>
+      <p class="garage-help">A / D or ← / → to steer · W to accelerate · S / ↓ to brake, hold to reverse</p>
+    </section>
+  </main>
+  <footer class="garage-footer"><div class="selected-mode"><span class="live-dot"></span><span id="modeLabel">CAREER MODE · LEVEL 1</span></div><button class="btn go" id="start">Start career <span aria-hidden="true">→</span></button></footer>
+</div>
+<div class="ov hide" id="pauseOv"><div class="card pause-card">
+  <div class="eyebrow">DRIVE PAUSED</div><h1>Take a breather.</h1><p>Your car and traffic are stopped.</p>
+  <div class="sound-control"><div><b>Engine sound</b><small>Adjust driving volume</small></div><button class="sound-toggle" id="soundToggle" aria-pressed="true">On</button></div>
+  <label class="volume-control" for="volume"><span>Volume</span><b id="volumeValue">35%</b><input id="volume" type="range" min="0" max="100" value="35"></label>
+  <div class="row pause-actions"><button class="btn go" id="resume">Resume drive</button><button class="btn" id="pauseGarage">Garage</button></div>
+</div></div>
+<div class="ov hide" id="over"><div class="card">
+  <h1 id="ot">Crashed</h1><p id="os"></p>
+  <div class="row"><button class="btn go" id="again">Drive again</button><button class="btn" id="toGarage">Garage</button></div>
+</div></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="game.js"></script>
+</body>
+</html>
